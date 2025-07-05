@@ -1,24 +1,37 @@
-name: 'Build and Deploy to GKE'
+name: SSH into GCP VM
 
 on:
-  merge:
+  push:
     branches:
-      - '"main"'
+      - main 
 
 jobs:
-  gcp-vm-login:
+  ssh:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT }}
+        export_default_credentials: true
 
-      - name: Run remote command
-        run: |
-        
+    - name: Authorize SSH to VM
+      run: |
+        gcloud compute config-ssh --quiet
+
+    - name: SSH and run multiple commands
+      run: |
+        gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
+          --zone=${{ secrets.GCP_ZONE }} \
+          --command="bash -c '
+            echo ✅ Logged into VM;
+            cd ~/K8s-demo;
+            git pull ;
+            helm upgrade frontend frontend -n app;
+            echo ✅ Deployment complete;
+          '"
