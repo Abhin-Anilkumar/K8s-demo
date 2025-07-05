@@ -1,7 +1,24 @@
 name: 'Build and Deploy to GKE'
 
 on:
-  push:
+  merge:
     branches:
       - '"main"'
 
+jobs:
+  gcp-vm-login:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Run remote command
+        run: |
+        
