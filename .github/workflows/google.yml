@@ -22,10 +22,10 @@ jobs:
 
     - name: Build Docker images with Build ID
       run: |
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }} frontend
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }} catalogue
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }} recommendation
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }} voting
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }} frontend/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }} catalogue/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }} recommendation/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }} voting/
 
     - name: Push Docker images to Artifact Registry
       run: |
