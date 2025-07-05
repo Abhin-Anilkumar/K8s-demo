@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",	
-  "productsApiBaseUri": "http://34.118.226.251:5000",
-  "recommendationBaseUri": "http://34.118.235.72:8080",
-  "votingBaseUri": "http://voting:8080"
+  "productsApiBaseUri": "http:/catalogue.app.svc.cluster.local:5000",
+  "recommendationBaseUri": "http://recommendation.app.svc.cluster.local:8080",
+  "votingBaseUri": "http://voting.app.svc.cluster.local:8080"
 }
 
