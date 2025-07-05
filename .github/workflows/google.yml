@@ -19,6 +19,9 @@ jobs:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         project_id: ${{ secrets.GCP_PROJECT }}
         export_default_credentials: true
+        
+    - name: Configure SSH
+      run: gcloud compute config-ssh --quiet
 
     - name: Authorize SSH to VM
       run: |
