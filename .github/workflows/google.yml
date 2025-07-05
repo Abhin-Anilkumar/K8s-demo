@@ -22,7 +22,8 @@ jobs:
 
     - name: Authorize SSH to VM
       run: |
-           echo "${{ variable.KEY }}" > key.json
+           echo "${{ secrets.GCP_SA_KEY }}" > key.json
+           cat key.json
            gcloud auth activate-service-account --key-file=key.json
            gcloud config set project ${{ secrets.GCP_PROJECT }}
            
