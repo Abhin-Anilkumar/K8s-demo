@@ -13,6 +13,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Generate Build ID
+      id: build_id
+      run: |
+        BUILD_ID=$(date +%Y%m%d%H%M%S)  # Format: YYYYMMDDHHMMSS
+        echo "BUILD_ID=${BUILD_ID}" >> $GITHUB_ENV
+        echo "Generated Build ID: ${BUILD_ID}"
+
+    - name: Build Docker images with Build ID
+      run: |
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }} .
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }} .
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }} .
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }} .
+
+    - name: Push Docker images to Artifact Registry
+      run: |
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }} .
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }} .
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }} .
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }} .
+
     - name: Setup gcloud CLI
       uses: google-github-actions/setup-gcloud@v2
       with:
