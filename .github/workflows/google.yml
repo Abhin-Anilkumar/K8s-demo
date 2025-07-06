@@ -16,7 +16,7 @@ jobs:
     - name: Generate Build ID
       id: build_id
       run: |
-        BUILD_ID=$(date +%Y%m%d%H%M%S)  # Format: YYYYMMDDHHMMSS
+        BUILD_ID=$(date +%Y%m%d%H%M%S)
         echo "BUILD_ID=${BUILD_ID}" >> $GITHUB_ENV
         echo "Generated Build ID: ${BUILD_ID}"
 
@@ -55,6 +55,7 @@ jobs:
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
           --command="bash -e -c 'set -e && \
             gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
             echo ✅ Logged into VM && \
@@ -67,6 +68,7 @@ jobs:
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
           --command="bash -e -c 'set -e && \
             gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
             echo ✅ Logged into VM && \
@@ -79,6 +81,7 @@ jobs:
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
           --command="bash -e -c 'set -e && \
             gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
             echo ✅ Logged into VM && \
@@ -91,6 +94,7 @@ jobs:
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
           --command="bash -e -c 'set -e && \
             gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
             echo ✅ Logged into VM && \
