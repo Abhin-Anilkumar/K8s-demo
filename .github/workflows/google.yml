@@ -3,7 +3,7 @@ name: SSH into GCP VM
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   ssh:
@@ -32,11 +32,11 @@ jobs:
         echo '${{ secrets.GCP_SA_KEY }}' > key.json
         gcloud auth activate-service-account --key-file=key.json
         gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-        docker login ${{ secrets.GCP_REGION }-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }} 
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }} 
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }} 
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }} 
+        gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }}
 
     - name: Setup gcloud CLI
       uses: google-github-actions/setup-gcloud@v2
@@ -47,53 +47,30 @@ jobs:
 
     - name: Authorize SSH to VM
       run: |
-           echo '${{ secrets.GCP_SA_KEY }}' > key.json
-           gcloud auth activate-service-account --key-file=key.json
-           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-           
+        echo '${{ secrets.GCP_SA_KEY }}' > key.json
+        gcloud auth activate-service-account --key-file=key.json
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
     - name: Deploy frontend
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c '
-            echo ✅ Logged into VM;
-            cd ~/K8s-demo;
-            git pull ;
-            helm upgrade frontend frontend/frontend -n app;
-            echo ✅frontend Deployment complete;
-          '"
+          --command="bash -c 'echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade frontend frontend/frontend -n app; echo ✅ Frontend deployment complete;'"
+
     - name: Deploy catalogue
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c '
-            echo ✅ Logged into VM;
-            cd ~/K8s-demo;
-            git pull ;
-            helm upgrade catalogue catalogue/catalogue -n app;
-            echo ✅frontend Deployment complete;
-          '"
-          
+          --command="bash -c 'echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade catalogue catalogue/catalogue -n app; echo ✅ Catalogue deployment complete;'"
+
     - name: Deploy recommendation
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c '
-            echo ✅ Logged into VM;
-            cd ~/K8s-demo;
-            git pull ;
-            helm upgrade recommendation recommendation/recommendation -n app;
-            echo ✅frontend Deployment complete;
-          '"
+          --command="bash -c 'echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade recommendation recommendation/recommendation -n app; echo ✅ Recommendation deployment complete;'"
+
     - name: Deploy voting
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c '
-            echo ✅ Logged into VM;
-            cd ~/K8s-demo;
-            git pull ;
-            helm upgrade voting voting/voting -n app;
-            echo ✅frontend Deployment complete;
-          '"
-          
+          --command="bash -c 'echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade voting voting/voting -n app; echo ✅ Voting deployment complete;'"
