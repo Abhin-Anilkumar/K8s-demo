@@ -55,22 +55,46 @@ jobs:
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c 'gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}; echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade frontend frontend/frontend -n app --set image.tag=${{ env.BUILD_ID }}; echo ✅ Frontend deployment complete;'"
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade frontend frontend/frontend -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Frontend deployment complete;'"
 
     - name: Deploy catalogue
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c 'gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}; echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade catalogue catalogue/catalogue -n app --set image.tag=${{ env.BUILD_ID }}; echo ✅ Catalogue deployment complete;'"
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade catalogue catalogue/catalogue -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Catalogue deployment complete;'"
 
     - name: Deploy recommendation
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c 'gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}; echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade recommendation recommendation/recommendation -n app --set image.tag=${{ env.BUILD_ID }}; echo ✅ Recommendation deployment complete;'"
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade recommendation recommendation/recommendation -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Recommendation deployment complete;'"
 
     - name: Deploy voting
       run: |
         gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
           --zone=${{ secrets.GCP_ZONE }} \
-          --command="bash -c 'gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}; echo ✅ Logged into VM; cd ~/K8s-demo; git pull; helm upgrade voting voting/voting -n app --set image.tag=${{ env.BUILD_ID }}; echo ✅ Voting deployment complete;'"
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade voting voting/voting -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Voting deployment complete;'"
