@@ -59,7 +59,7 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade DEV/frontend DEV/frontend/frontend -n develop --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade frontend-dev DEV/frontend/frontend -n develop --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Frontend deployment complete;'"
 
     - name: Deploy catalogue
@@ -72,7 +72,7 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade DEV/catalogue DEV/catalogue/catalogue -n develop --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade catalogue-dev DEV/catalogue/catalogue -n develop --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Catalogue deployment complete;'"
 
     - name: Deploy recommendation
@@ -85,7 +85,7 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade DEV/recommendation DEV/recommendation/recommendation -n develop --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade recommendation-dev DEV/recommendation/recommendation -n develop --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Recommendation deployment complete;'"
 
     - name: Deploy voting
@@ -98,5 +98,5 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade DEV/voting DEV/voting/voting -n develop --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade voting-dev DEV/voting/voting -n develop --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Voting deployment complete;'"
