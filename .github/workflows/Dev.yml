@@ -20,10 +20,10 @@ jobs:
 
     - name: Build Docker images with Build ID
       run: |
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }} frontend/
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }} catalogue/
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }} recommendation/
-        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }} voting/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend-dev:${{ env.BUILD_ID }} frontend/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue-dev:${{ env.BUILD_ID }} catalogue/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation-dev:${{ env.BUILD_ID }} recommendation/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting-dev:${{ env.BUILD_ID }} voting/
 
     - name: Push Docker images to Artifact Registry
       run: |
@@ -31,10 +31,10 @@ jobs:
         gcloud auth activate-service-account --key-file=key.json
         gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
         gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }}
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }}
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }}
-        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend-dev:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue-dev:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation-dev:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting-dev:${{ env.BUILD_ID }}
 
     - name: Setup gcloud CLI
       uses: google-github-actions/setup-gcloud@v2
@@ -59,7 +59,7 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade frontend frontend/frontend -n app --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade DEV/frontend DEV/frontend/frontend -n app --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Frontend deployment complete;'"
 
     - name: Deploy catalogue
@@ -72,7 +72,7 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade catalogue catalogue/catalogue -n app --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade DEV/catalogue DEV/catalogue/catalogue -n app --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Catalogue deployment complete;'"
 
     - name: Deploy recommendation
@@ -85,7 +85,7 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade recommendation recommendation/recommendation -n app --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade DEV/recommendation DEV/recommendation/recommendation -n app --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Recommendation deployment complete;'"
 
     - name: Deploy voting
@@ -98,5 +98,5 @@ jobs:
             echo ✅ Logged into VM && \
             cd ~/K8s-demo && \
             git pull && \
-            helm upgrade voting voting/voting -n app --set image.tag=${{ env.BUILD_ID }} && \
+            helm upgrade DEV/voting DEV/voting/voting -n app --set image.tag=${{ env.BUILD_ID }} && \
             echo ✅ Voting deployment complete;'"
