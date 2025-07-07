@@ -1,1 +1,102 @@
+name: SSH into GCP VM
 
+on:
+  workflow_dispatch:
+
+jobs:
+  ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Generate Build ID
+      id: build_id
+      run: |
+        BUILD_ID=$(date +%Y%m%d%H%M%S)
+        echo "BUILD_ID=${BUILD_ID}" >> $GITHUB_ENV
+        echo "Generated Build ID: ${BUILD_ID}"
+
+    - name: Build Docker images with Build ID
+      run: |
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }} frontend/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }} catalogue/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }} recommendation/
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }} voting/
+
+    - name: Push Docker images to Artifact Registry
+      run: |
+        echo '${{ secrets.GCP_SA_KEY }}' > key.json
+        gcloud auth activate-service-account --key-file=key.json
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+        gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/frontend:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/catalogue:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/recommendation:${{ env.BUILD_ID }}
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cyber-sapient-demo/voting:${{ env.BUILD_ID }}
+
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+
+    - name: Authorize SSH to VM
+      run: |
+        echo '${{ secrets.GCP_SA_KEY }}' > key.json
+        gcloud auth activate-service-account --key-file=key.json
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Deploy frontend
+      run: |
+        gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
+          --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade frontend frontend/frontend -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Frontend deployment complete;'"
+
+    - name: Deploy catalogue
+      run: |
+        gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
+          --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade catalogue catalogue/catalogue -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Catalogue deployment complete;'"
+
+    - name: Deploy recommendation
+      run: |
+        gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
+          --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade recommendation recommendation/recommendation -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Recommendation deployment complete;'"
+
+    - name: Deploy voting
+      run: |
+        gcloud compute ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_NAME }} \
+          --zone=${{ secrets.GCP_ZONE }} \
+          --ssh-flag="-o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=2" \
+          --command="bash -e -c 'set -e && \
+            gcloud container clusters get-credentials privatecluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }} && \
+            echo ✅ Logged into VM && \
+            cd ~/K8s-demo && \
+            git pull && \
+            helm upgrade voting voting/voting -n app --set image.tag=${{ env.BUILD_ID }} && \
+            echo ✅ Voting deployment complete;'"
