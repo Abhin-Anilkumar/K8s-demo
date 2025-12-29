@@ -9,7 +9,7 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
 spec:
   rules:
-  - host: app.abhinanilkumar.online                      # Replace with your domain
+  - host: evoqu.in                      # Replace with your domain
     http:
       paths:
       - path: /
@@ -18,6 +18,4 @@ spec:
           service:
             name: frontend
             port:
-              number: 80
-              targetPort: 3000
-
+              number: 3000
