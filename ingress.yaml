@@ -4,8 +4,9 @@ metadata:
   name: craftista-ingress
   namespace: app
   annotations:
-    kubernetes.io/ingress.class: "gce"                # Use GCE ingress controller
-      #networking.gke.io/managed-certificates: "craftista-cert"  # Optional, for managed TLS cert
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
 spec:
   rules:
   - host: app.abhinanilkumar.online                      # Replace with your domain
