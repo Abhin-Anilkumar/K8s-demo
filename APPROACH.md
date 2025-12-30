@@ -26,6 +26,21 @@ The goal was to deploy a highly available, scalable, and secure microservices ap
 ### 5. Persistence
 - **RDS PostgreSQL**: The `voting` service was migrated from an in-memory H2 database to a managed RDS PostgreSQL instance. This ensures data persistence across pod restarts and provides enterprise-grade backup and scaling capabilities.
 
-### 6. Deployment Strategy
+### 6. Cost Optimization
+- **Instance Rightsizing**: The EKS node groups use `t3.medium` instances, providing a balance of compute and memory while remaining within a cost-effective tier for production-like environments.
+- **Auto-Discovery for Scale**: The use of Managed Node Groups allows for seamless scaling. For future optimization, we recommend implementing **Horizontal Pod Autoscaler (HPA)** and **Cluster Autoscaler** to match resource usage with demand.
+- **Spot Instance Potential**: The architecture is designed to support EKS Spot Instances for non-critical workloads or as part of a diversified node group strategy to reduce costs by up to 70-90%.
+- **RDS Reserved Instances**: For long-term production usage, RDS Reserved Instances are recommended to lock in significant discounts.
+
+### 7. Monitoring & Logging Strategy
+- **Infrastructure Metrics**: Leveraging **AWS CloudWatch** for EKS node and RDS performance monitoring (CPU, Memory, IOPS).
+- **Application Metrics**: Integrated Spring Boot Actuator for the `voting` service and standardized logging for all microservices to be captured by **CloudWatch Container Insights**.
+- **Centralized Logs**: Application logs are streamed to CloudWatch Logs via the standard out/error streams of the containers, allowing for centralized querying and alert configuration.
+
+### 8. Backup & Disaster Recovery
+- **RDS Automated Backups**: The PostgreSQL instance is configured with automated backups (7-day retention by default) with Point-in-Time Recovery (PITR) enabled.
+- **Infra as Code**: The entire environment is versioned in Git via Terraform, allowing for rapid recreation of the entire stack in an alternate region if necessary.
+
+### 9. Deployment Strategy
 - **Helm**: Componentized deployment using Helm charts for each microservice, allowing for environment-specific value overrides and structured rollouts.
 - **Rolling Restarts**: Used `kubectl rollout restart` to ensure zero-downtime updates when applying new configurations or image changes.

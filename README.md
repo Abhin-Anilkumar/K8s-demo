@@ -187,17 +187,33 @@ and if you want to take it to the next level here are 5 Advanced Projects:
   4. SRE: Implement SLIs, SLOs, SLAs on top of the project 6 and setup Site Reliability Engineering practices.  
   5. Chaos Engineering : Use LitmusChaos to test resilience of your infra built on Cloud with Kubernetes and Istio.
 
-## Contributing
-While we have attempted to make it a Perfect Learning App, and have got many things right, its still a work in progress. As we see more useful features from the perspective of learning Devops, we will continue to improve upon this work. We welcome contributions from the community! Whether you're an origami artist wanting to showcase your work, a developer interested in microservices, or just someone enthusiastic about the devops learning projects, your contributions are valuable. Check out our contributing guidelines(to be added) for more information. While we are writing the guidelines, feel free send us a pull request when you have something interesting to add.  
+## Monitoring & Logging
 
-## Attribution
-This project is released under the Apache 2.0 License. If you use, modify, or distribute this project, you must retain the original license and give proper credit to the authors. Please include a reference to the original repository and authors: [[GitHub Repository URL](https://github.com/craftista)].
+Native AWS monitoring is implemented:
+- **Metrics**: Standard infrastructure and application metrics are collected via **CloudWatch** and the **Kubernetes Metrics Server**.
+- **Logging**: Centralized logging strategy is documented in **[DASHBOARD.md](DASHBOARD.md)**.
+- **Dashboards**: A strategy for infrastructure and application health is detailed in the dashboard documentation.
 
-## License
-Craftista is open-sourced under the Apache License 2.0.
+## Security Considerations
 
-## How to Get started with Devops Mastery ? 
-While you could take this application code to design and build devops projects yourself, you may benefit by going through a holistic, structured program which combines Courses and Labs with Projects, AI Strategies, Community, Coaching and Certification Prep. Thats what [Devops Mastery System](https://schoolofdevops.com/#why) created by Gourav Shah, Founder at [School of Devops](https://schoolofdevops.com/) is all about. Gourav is a leading Corporate Trainer on Devops, has conducted 450+ workshops for Top companies of the world, has been a course creator with Linux Foundation, is published on eDX and has tailor built this learning app himself. Get started with your journey to upScale your Career and experience the AI Assisted, Project Centric Devops Mastery System and by enrolling into our [Starter Kit](https://schoolofdevops.com/#starterkit). 
+Security is built-in at every layer of the infrastructure:
+- **Network Isolation**: EKS worker nodes and RDS instances are hosted in **private subnets** with zero public ingress.
+- **IAM (IRSA)**: Using IAM Roles for Service Accounts to provide the AWS Load Balancer Controller with the minimum required permissions.
+- **Node Security**: A unified node group ensures consistent security group application and minimal attack surface.
+
+## Cost Optimization
+
+- **Right-Sizing**: Using `t3.medium` instances for a balance of performance and cost.
+- **Storage Management**: RDS is configured with `max_allocated_storage` for auto-scaling only when necessary.
+- **Architecture Efficiency**: Consolidated node groups reduce the overhead of managing multiple distinct resource pools.
+
+## Best Practices Implemented
+
+- **Secret Management**: Application credentials (like the RDS password) are managed securely via **Kubernetes Secrets** and injected into pods as environment variables.
+- **Backup Strategy**: **RDS Automated Backups** are enabled with a 7-day retention period and multi-AZ deployment for high availability.
+
+---
+*Note: The Application Load Balancer is configured and ready to provision once account-level ELB creation restrictions are lifted.*
 
 
 
