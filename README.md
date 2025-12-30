@@ -1,10 +1,15 @@
+# Craftista Application (Microservices)
 
-# Craftista - The Ultimate Devops Learning App
+This repository contains the **Application Source Code** and **Helm Charts** for the Craftista microservices platform.
 
-We, at [School of Devops](https://schoolofdevops.com) take pride to introduce you to Craftista, a Polyglot, Micro-Services based application, built with the Modern Tech stack, specially designed to be used as a learning app to buid Devops Projects with.  
+> [!NOTE]
+> **Infrastructure Repository**: The Terraform code to provision the EKS cluster for this application is available at [AWS-EKS-Infrastructure](https://github.com/Abhin-Anilkumar/EKS-project-for-8byte).
 
-## Demo Repository (If you just want to launch the app in 5 mins and play with it)
-This project repo  is for builders who want to learn Devops by building projects from scratch. If you are looking for just launching this app in less than 5 minutes and playing around with it, head over to [Craftista Demo](https://github.com/craftista/craftista-demo) instead. 
+## Documentation
+
+For detailed technical insights, please refer to:
+- **[APPROACH.md](APPROACH.md)**: Design rationale, networking strategy, and architectural decisions.
+- **[CHALLENGES.md](CHALLENGES.md)**: A log of hurdles encountered (Architecture mismatches, connectivity hangs) and their resolutions.
 
 
 ## What is Craftista: Celebrating the Art of Origami 
