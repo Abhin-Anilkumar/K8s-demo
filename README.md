@@ -81,6 +81,24 @@ kubectl get svc -n app
 
 ---
 
+
+## 🎯 Live Application
+
+**Production URL**: [evoqu.in](http://evoqu.in)
+
+### Application Screenshots
+
+![Craftista Homepage](screenshot/App/Screenshot%202025-12-30%20at%203.37.17%20PM.png)
+*Craftista homepage showcasing origami collection*
+
+![Origami Catalogue](screenshot/App/Screenshot%202025-12-30%20at%203.37.33%20PM.png)
+*Catalogue service displaying origami pieces with details*
+
+![Voting System](screenshot/App/Screenshot%202025-12-30%20at%203.37.52%20PM.png)
+*Interactive voting interface for community engagement*
+
+---
+
 ## 📊 Monitoring
 
 ### Grafana Dashboards
