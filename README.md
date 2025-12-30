@@ -88,13 +88,13 @@ kubectl get svc -n app
 
 ### Application Screenshots
 
-![Craftista Homepage](screenshot/App/Screenshot%202025-12-30%20at%203.37.17%20PM.png)
+![Craftista Homepage](screenshot/App/homepage.png)
 *Craftista homepage showcasing origami collection*
 
-![Origami Catalogue](screenshot/App/Screenshot%202025-12-30%20at%203.37.33%20PM.png)
+![Origami Catalogue](screenshot/App/catalogue.png)
 *Catalogue service displaying origami pieces with details*
 
-![Voting System](screenshot/App/Screenshot%202025-12-30%20at%203.37.52%20PM.png)
+![Voting System](screenshot/App/voting.png)
 *Interactive voting interface for community engagement*
 
 ---
