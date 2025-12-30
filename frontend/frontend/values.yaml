@@ -9,7 +9,7 @@ replicaCount: 3
 image:
   repository: 381492170891.dkr.ecr.us-east-1.amazonaws.com/frontend
   # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
