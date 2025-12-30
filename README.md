@@ -127,6 +127,7 @@ aws logs tail /aws/eks/prod-eks/cluster --follow
 
 ## 📚 Documentation
 
+- **[Complete Walkthrough](https://github.com/Abhin-Anilkumar/EKS-project-for-8byte/blob/main/terraform/complete-walkthrough.md)**: **Step-by-step technical guide** - Detailed explanation of infrastructure, application, CI/CD, and deployment
 - **[README-original.md](README-original.md)** - Application details and features
 - **[APPROACH.md](APPROACH.md)** - Design rationale
 - **[CHALLENGES.md](CHALLENGES.md)** - Issues and resolutions
