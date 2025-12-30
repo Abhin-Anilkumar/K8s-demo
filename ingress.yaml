@@ -4,12 +4,12 @@ metadata:
   name: craftista-ingress
   namespace: app
   annotations:
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
 spec:
+  ingressClassName: alb   # 🔥 THIS IS MANDATORY
   rules:
-  - host: evoqu.in                      # Replace with your domain
+  - host: evoqu.in
     http:
       paths:
       - path: /
