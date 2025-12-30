@@ -103,10 +103,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:80
 ### CloudWatch Logs
 
 ```bash
-# Application logs
-aws logs tail /aws/containerinsights/prod-eks/application --follow
-
-# Control plane logs
+# View control plane logs
 aws logs tail /aws/eks/prod-eks/cluster --follow
 ```
 

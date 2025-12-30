@@ -56,7 +56,8 @@ The goal was to deploy a highly available, scalable, and secure microservices ap
   - **Infrastructure Metrics**: Node CPU, memory, disk, network I/O
   - **Application Metrics**: Pod resource usage, restart counts, availability
   - **Dashboards**: Pre-configured Grafana dashboards for infrastructure and application monitoring
-- **CloudWatch Logs**: Centralized logging for application and control plane logs
+- **CloudWatch Logs**: EKS control plane logs (API server, scheduler, controller manager)
+  - Log Group: `/aws/eks/prod-eks/cluster`
 - **EBS CSI Driver**: Installed as EKS addon to enable persistent storage for Prometheus/Grafana
 
 ### 11. Cluster Scaling

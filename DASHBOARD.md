@@ -40,12 +40,10 @@ This document outlines the implemented monitoring and logging stack for the Craf
 
 ### Log Groups
 - `/aws/eks/prod-eks/cluster`: EKS control plane logs (API server, scheduler, controller manager)
-- `/aws/containerinsights/prod-eks/application`: Application container logs
 
 ### Log Sources
-- Application STDOUT/STDERR from all microservices
-- System/Node logs
 - EKS control plane audit logs
+- Kubernetes system component logs
 
 ## 4. Storage Infrastructure (EBS CSI Driver)
 
