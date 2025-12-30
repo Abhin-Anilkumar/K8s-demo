@@ -82,11 +82,27 @@ jobs:
           docker build -t ${{ env.ECR_REGISTRY }}/frontend:latest --platform linux/amd64 .
           docker push ${{ env.ECR_REGISTRY }}/frontend:latest
 
+      - name: Scan Frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/frontend:latest
+          format: 'table'
+          exit-code: '0' 
+          severity: 'CRITICAL,HIGH'
+
       - name: Build, tag, and push Catalogue
         run: |
           cd catalogue
           docker build -t ${{ env.ECR_REGISTRY }}/catalogue:latest --platform linux/amd64 .
           docker push ${{ env.ECR_REGISTRY }}/catalogue:latest
+
+      - name: Scan Catalogue
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/catalogue:latest
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
 
       - name: Build, tag, and push Voting
         run: |
@@ -94,11 +110,27 @@ jobs:
           docker build -t ${{ env.ECR_REGISTRY }}/voting:latest --platform linux/amd64 .
           docker push ${{ env.ECR_REGISTRY }}/voting:latest
 
+      - name: Scan Voting
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/voting:latest
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+
       - name: Build, tag, and push Recommendation
         run: |
           cd recommendation
           docker build -t ${{ env.ECR_REGISTRY }}/recommendation:latest --platform linux/amd64 .
           docker push ${{ env.ECR_REGISTRY }}/recommendation:latest
+
+      - name: Scan Recommendation
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/recommendation:latest
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
 
   deploy_staging:
     name: Deploy to Staging
