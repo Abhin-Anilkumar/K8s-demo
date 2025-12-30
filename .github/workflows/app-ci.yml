@@ -2,17 +2,38 @@ name: Application CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ develop ]
 
 env:
   AWS_REGION: us-east-1
   ECR_REGISTRY: 381492170891.dkr.ecr.us-east-1.amazonaws.com
 
 jobs:
+  validate-build:
+    name: Build Validation (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build Frontend
+        run: cd frontend && docker build -t frontend:test --platform linux/amd64 .
+
+      - name: Build Catalogue
+        run: cd catalogue && docker build -t catalogue:test --platform linux/amd64 .
+
+      - name: Build Voting
+        run: cd voting && docker build -t voting:test --platform linux/amd64 .
+
+      - name: Build Recommendation
+        run: cd recommendation && docker build -t recommendation:test --platform linux/amd64 .
+
   build-and-push:
     name: Build and Push Images
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -53,9 +74,35 @@ jobs:
           docker build -t ${{ env.ECR_REGISTRY }}/recommendation:latest --platform linux/amd64 .
           docker push ${{ env.ECR_REGISTRY }}/recommendation:latest
 
-  deploy-production:
-    name: Deploy to Production
+  deploy-staging:
+    name: Deploy to Staging (Develop)
     needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to EKS (Staging)
+        run: |
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name prod-eks
+          # Deploying to stage-app namespace
+          helm upgrade --install frontend ./charts/frontend -n stage-app --create-namespace
+          helm upgrade --install catalogue ./charts/catalogue -n stage-app --create-namespace
+          helm upgrade --install voting ./charts/voting -n stage-app --create-namespace
+          helm upgrade --install recommendation ./charts/recommendation -n stage-app --create-namespace
+
+  deploy-production:
+    name: Deploy to Production (Main)
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -70,12 +117,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-
-      - name: Deploy to EKS
+      - name: Deploy to EKS (Production)
         run: |
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name prod-eks
-          # Deploying using reorganized Helm charts
-          helm upgrade --install frontend ./charts/frontend -n app
-          helm upgrade --install catalogue ./charts/catalogue -n app
-          helm upgrade --install voting ./charts/voting -n app
-          helm upgrade --install recommendation ./charts/recommendation -n app
+          # Deploying to app namespace
+          helm upgrade --install frontend ./charts/frontend -n app --create-namespace
+          helm upgrade --install catalogue ./charts/catalogue -n app --create-namespace
+          helm upgrade --install voting ./charts/voting -n app --create-namespace
+          helm upgrade --install recommendation ./charts/recommendation -n app --create-namespace
