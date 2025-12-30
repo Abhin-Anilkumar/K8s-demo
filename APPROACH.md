@@ -21,12 +21,15 @@ The goal was to deploy a highly available, scalable, and secure microservices ap
 ### 4. Persistence
 - **RDS PostgreSQL**: The `voting` service is integrated with a managed RDS PostgreSQL instance for data persistence.
 
-### 5. Repository & CI/CD Organization (Refactored)
-- **Centralized Helm Charts**: Reorganized Helm charts into a dedicated `charts/` directory at the project root. This follows Kubernetes best practices, making it easier to manage deployments across multiple environments.
-- **Streamlined CI/CD**: Simplified the GitHub Actions pipeline to focus on high-speed delivery:
-  - **Build**: Rapid Docker builds with Amazon ECR integration.
-  - **Deploy**: Seamless Helm-based deployments to EKS.
-  - **Notify**: Reliable feedback via native GitHub status checks.
+### 5. Repository & CI/CD Organization (Main/Develop)
+- **Centralized Helm Charts**: Reorganized Helm charts into a dedicated `charts/` directory at the project root for consistent deployments.
+- **Microservices Branching**:
+  - **Develop**: Targeted for `stage-app` namespace.
+  - **Main**: Targeted for `app` namespace with manual approval.
+- **Streamlined CI/CD**: 
+  - **Validation**: "Build-only" checks on PRs to ensure code integrity (no unit tests).
+  - **Staging**: Automatic deployment to `stage-app`.
+  - **Production**: Gated deployment to `app`.
 
 ### 6. Security & IAM
 - **IRSA (IAM Roles for Service Accounts)**: Implemented for the AWS Load Balancer Controller to follow the principle of least privilege.
