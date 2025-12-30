@@ -84,16 +84,27 @@ The repository follows a clean monorepo structure with centralized Helm charts:
 
 ## CI/CD Pipeline
 
-The project implements a streamlined CI/CD pipeline using **GitHub Actions**:
+The project implements a professional **Main/Develop** branching strategy with a streamlined GitHub Actions pipeline:
 
-### 1. Build and Push
-- Automated Docker builds for all microservices (Frontend, Catalogue, Voting, Recommendation).
-- Multi-architecture support (`linux/amd64`) for EKS compatibility.
-- Seamless authentication and push to **Amazon ECR**.
+### 1. Branching Strategy
+- **`develop`**: The integration branch. Merges here trigger deployment to **Staging**.
+- **`main`**: The production branch. Merges here trigger a gated deployment to **Production**.
 
-### 2. Automated Deployment
-- Automated deployment to the **Amazon EKS** production cluster using Helm.
-- Native GitHub Action notifications for build and deployment status.
+### 2. Pipeline Stages
+- **Build Validation (PR)**:
+  - Trigger: Pull Request to `develop`.
+  - Action: Runs `docker build` to verify code integrity without unit tests.
+- **Staging Deployment**:
+  - Trigger: Push/Merge to `develop`.
+  - Action: Builds images, pushes to ECR, and deploys to the `stage-app` namespace.
+- **Production Deployment**:
+  - Trigger: Push/Merge to `main`.
+  - Action: Deploys images to the `app` namespace.
+  - **Gate**: Requires Manual Approval via GitHub Environments.
+
+### 3. Namespace Isolation
+- **`stage-app`**: Staging environment for testing integrations.
+- **`app`**: Production environment for live traffic.
 
 ---
 

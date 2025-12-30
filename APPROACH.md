@@ -21,17 +21,32 @@ The goal was to deploy a highly available, scalable, and secure microservices ap
 ### 4. Persistence
 - **RDS PostgreSQL**: The `voting` service is integrated with a managed RDS PostgreSQL instance for data persistence.
 
-### 5. Repository & CI/CD Organization (Refactored)
-- **Centralized Helm Charts**: Reorganized Helm charts into a dedicated `charts/` directory at the project root. This follows Kubernetes best practices, making it easier to manage deployments across multiple environments.
-- **Streamlined CI/CD**: Simplified the GitHub Actions pipeline to focus on high-speed delivery:
-  - **Build**: Rapid Docker builds with Amazon ECR integration.
-  - **Deploy**: Seamless Helm-based deployments to EKS.
-  - **Notify**: Reliable feedback via native GitHub status checks.
+### 5. Repository & CI/CD Organization (Main/Develop)
+- **Centralized Helm Charts**: Reorganized Helm charts into a dedicated `charts/` directory at the project root for consistent deployments.
+- **Microservices Branching**:
+  - **Develop**: Targeted for `stage-app` namespace.
+  - **Main**: Targeted for `app` namespace with manual approval.
+- **Streamlined CI/CD**: 
+  - **Validation**: "Build-only" checks on PRs to ensure code integrity (no unit tests).
+  - **Staging**: Automatic deployment to `stage-app`.
+  - **Production**: Gated deployment to `app`.
 
 ### 6. Security & IAM
 - **IRSA (IAM Roles for Service Accounts)**: Implemented for the AWS Load Balancer Controller to follow the principle of least privilege.
 - **Secret Management**: Database credentials and other sensitive info are managed via Kubernetes Secrets.
 
-### 7. Monitoring & Logging
-- **AWS CloudWatch**: Used for infrastructure metrics and centralized log streaming.
-- **Metrics Server**: Enabled for real-time cluster resource monitoring.
+### 7. Security Best Practices
+- **Network Isolation**: Worker nodes and databases reside in private subnets; only the ALB is public.
+- **Least Privilege**: IAM Roles for Service Accounts (IRSA) restrict pod permissions.
+- **Secret Management**: Sensitive data (DB credentials) is managed via Kubernetes Secrets, not hardcoded.
+- **Container Security**: Images are built distroless/minimal where possible to reduce attack surface.
+
+### 8. Cost Optimization
+- **Right-Sizing**: Selected `t3.medium` instances to balance performance and cost for this workload.
+- **Auto-Scaling**: Configured Horizontal Pod Autoscalers (HPA) to scale down during low traffic.
+- **Spot Instances**: (Optional) Ready to leverage Spot instances for stateless frontend/catalogue services.
+
+### 9. Reliability & Backups
+- **Database Backups**: RDS is configured with automated daily snapshots (7-day retention).
+- **State Management**: Terraform state is locked via DynamoDB to prevent corruption.
+- **High Availability**: Multi-AZ deployment ensures resilience against zone failures.

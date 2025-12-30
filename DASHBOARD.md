@@ -25,15 +25,25 @@ This dashboard focuses on the user experience and data persistence layer.
   - **Database Connections**: Monitors the connection pool from the Voting service.
   - **Read/Write IOPS**: Tracks database throughput.
 
-## Implementation Details
+## 1. Metrics Collection (Prometheus)
+- **Tool**: kube-prometheus-stack (Helm)
+- **Namespace**: `monitoring`
+- **Targets**:
+  - **Infrastructure**: EKS Nodes, Kubelet, API Server (CPU, Memory, Disk).
+  - **Applications**: Pod resource usage, restart counts.
 
-### Metrics Collection
-- **Infrastructure**: Native CloudWatch metrics for EC2 (EKS nodes) and RDS.
-- **Application**: The `voting` service exposes Prometheus metrics via Spring Boot Actuator, which are scraped for high-granularity performance data.
-- **Cluster Metrics**: Provided by the `metrics-server` installed on the cluster, enabling `kubectl top` and HPA.
+## 2. Visualization (Grafana)
+- **Access**: Port-forward service via `kubectl port-forward svc/prometheus-grafana 3000:80 -n monitoring`.
+- **Recommended Dashboards**:
+  1. **Cluster Overview**: Global view of node health and capacity.
+  2. **Pod Performance**: CPU/Memory utilization per microservice.
 
-### Logging
-- **Centralized Logging**: All containers stream logs to `stdout`/`stderr`, which are captured by AWS CloudWatch Logs. 
+## 3. Logging Strategy
+- **Centralized Logging**: CloudWatch Logs (via Fluent Bit) or ELK Stack.
+- **Log Sources**:
+  - Application STDOUT/STDERR
+  - System/Node logs
+  - ALB Access logs
 - **Log Groups**: 
   - `/aws/eks/prod-eks/cluster`: Control plane logs.
   - `/aws/containerinsights/prod-eks/application`: Application-specific logs.
