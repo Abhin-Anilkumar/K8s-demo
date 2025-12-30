@@ -82,12 +82,6 @@ jobs:
           docker build -t ${{ env.ECR_REGISTRY }}/frontend:latest --platform linux/amd64 .
           docker push ${{ env.ECR_REGISTRY }}/frontend:latest
 
-      - name: Build, tag, and push Frontend
-        run: |
-          cd frontend
-          docker build -t ${{ env.ECR_REGISTRY }}/frontend:latest --platform linux/amd64 .
-          docker push ${{ env.ECR_REGISTRY }}/frontend:latest
-
       - name: Build, tag, and push Catalogue
         run: |
           cd catalogue
