@@ -7,40 +7,31 @@ This document outlines the architectural decisions and technical rationale for t
 The goal was to deploy a highly available, scalable, and secure microservices application on AWS EKS. The architecture leverages managed services wherever possible to minimize operational overhead.
 
 ### 1. Network Infrastructure (VPC)
-- **Multi-AZ Deployment**: Subnets are distributed across multiple Availability Zones (`us-east-1a`, `us-east-1b`) to ensure high availability.
-- **Segmentation**: Public subnets host the Application Load Balancer (ALB), while private subnets host the EKS worker nodes and RDS instances to ensure zero direct public access to backend components.
-- **ALB Discovery**: Subnets are tagged with `kubernetes.io/role/elb` and `kubernetes.io/role/internal-elb` to allow the AWS Load Balancer Controller to automatically discover and provision ALBs.
+- **Multi-AZ Deployment**: Subnets are distributed across multiple Availability Zones to ensure high availability.
+- **Segmentation**: Public subnets host the ALB, while private subnets host worker nodes and RDS instances.
+- **ALB Discovery**: Subnets are correctly tagged for AWS Load Balancer Controller discovery.
 
 ### 2. EKS Cluster Design
-- **Unified Node Group**: Initially, workloads were split across node groups. We transitioned to a unified `default` node group to simplify Security Group management and resolve inter-pod connectivity issues caused by network isolation between groups.
-- **Architecture Compatibility**: Node groups are configured to use `linux/amd64` (AL2) to match the application's compiled dependencies.
+- **Unified Node Group**: Consolidated workloads into a single node group to simplify networking and security group management.
+- **Architecture Compatibility**: Images are built for `linux/amd64` to match the EKS worker node architecture.
 
 ### 3. Service Discovery & Connectivity
-- **Internal FQDNs**: Microservices communicate using Fully Qualified Domain Names (e.g., `catalogue.app.svc.cluster.local`) rather than short names. This ensures reliable DNS resolution across different namespaces and improves cluster-wide discovery stability.
-- **Consistent Protocols**: Standardized all internal endpoints to use consistent port mappings (e.g., frontend on 3000, catalogue on 5000, etc.).
+- **Internal FQDNs**: Microservices use Full Qualified Domain Names (e.g., `catalogue.app.svc.cluster.local`) for reliable internal communication.
 
-### 4. Security & IAM
-- **IRSA (IAM Roles for Service Accounts)**: Instead of providing broad permissions to the entire node group, we use IRSA for the AWS Load Balancer Controller. This follows the principle of least privilege by allowing the controller's specific Kubernetes service account to assume a unique IAM role.
-- **Security Groups**: A centralized security group strategy was implemented where the RDS instance only accepts traffic from the EKS node group security group on port 5432.
+### 4. Persistence
+- **RDS PostgreSQL**: The `voting` service is integrated with a managed RDS PostgreSQL instance for data persistence.
 
-### 5. Persistence
-- **RDS PostgreSQL**: The `voting` service was migrated from an in-memory H2 database to a managed RDS PostgreSQL instance. This ensures data persistence across pod restarts and provides enterprise-grade backup and scaling capabilities.
+### 5. Repository & CI/CD Organization (Refactored)
+- **Centralized Helm Charts**: Reorganized Helm charts into a dedicated `charts/` directory at the project root. This follows Kubernetes best practices, making it easier to manage deployments across multiple environments.
+- **Streamlined CI/CD**: Simplified the GitHub Actions pipeline to focus on high-speed delivery:
+  - **Build**: Rapid Docker builds with Amazon ECR integration.
+  - **Deploy**: Seamless Helm-based deployments to EKS.
+  - **Notify**: Automated email alerts for build status.
 
-### 6. Cost Optimization
-- **Instance Rightsizing**: The EKS node groups use `t3.medium` instances, providing a balance of compute and memory while remaining within a cost-effective tier for production-like environments.
-- **Auto-Discovery for Scale**: The use of Managed Node Groups allows for seamless scaling. For future optimization, we recommend implementing **Horizontal Pod Autoscaler (HPA)** and **Cluster Autoscaler** to match resource usage with demand.
-- **Spot Instance Potential**: The architecture is designed to support EKS Spot Instances for non-critical workloads or as part of a diversified node group strategy to reduce costs by up to 70-90%.
-- **RDS Reserved Instances**: For long-term production usage, RDS Reserved Instances are recommended to lock in significant discounts.
+### 6. Security & IAM
+- **IRSA (IAM Roles for Service Accounts)**: Implemented for the AWS Load Balancer Controller to follow the principle of least privilege.
+- **Secret Management**: Database credentials and other sensitive info are managed via Kubernetes Secrets.
 
-### 7. Monitoring & Logging Strategy
-- **Infrastructure Metrics**: Leveraging **AWS CloudWatch** for EKS node and RDS performance monitoring (CPU, Memory, IOPS).
-- **Application Metrics**: Integrated Spring Boot Actuator for the `voting` service and standardized logging for all microservices to be captured by **CloudWatch Container Insights**.
-- **Centralized Logs**: Application logs are streamed to CloudWatch Logs via the standard out/error streams of the containers, allowing for centralized querying and alert configuration.
-
-### 8. Backup & Disaster Recovery
-- **RDS Automated Backups**: The PostgreSQL instance is configured with automated backups (7-day retention by default) with Point-in-Time Recovery (PITR) enabled.
-- **Infra as Code**: The entire environment is versioned in Git via Terraform, allowing for rapid recreation of the entire stack in an alternate region if necessary.
-
-### 9. Deployment Strategy
-- **Helm**: Componentized deployment using Helm charts for each microservice, allowing for environment-specific value overrides and structured rollouts.
-- **Rolling Restarts**: Used `kubectl rollout restart` to ensure zero-downtime updates when applying new configurations or image changes.
+### 7. Monitoring & Logging
+- **AWS CloudWatch**: Used for infrastructure metrics and centralized log streaming.
+- **Metrics Server**: Enabled for real-time cluster resource monitoring.

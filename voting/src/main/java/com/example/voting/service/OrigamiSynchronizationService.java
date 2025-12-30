@@ -63,10 +63,6 @@ public class OrigamiSynchronizationService {
     private List<Origami> fetchOrigamisFromCatalogueService() {
     try {
         Origami[] origamisArray = restTemplate.getForObject(catalogueServiceUrl, Origami[].class);
-        if (origamisArray == null) {
-            log.warn("Catalogue service returned null response");
-            return Collections.emptyList();
-        }
         List<Origami> origamis = Arrays.asList(origamisArray);
         origamis.forEach(origami -> log.info("Fetched Origami with ID: {}", origami.getOrigamiId()));  // Log each ID
         return origamis;
