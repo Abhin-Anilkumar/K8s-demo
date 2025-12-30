@@ -50,3 +50,22 @@ The goal was to deploy a highly available, scalable, and secure microservices ap
 - **Database Backups**: RDS is configured with automated daily snapshots (7-day retention).
 - **State Management**: Terraform state is locked via DynamoDB to prevent corruption.
 - **High Availability**: Multi-AZ deployment ensures resilience against zone failures.
+
+### 10. Monitoring & Observability
+- **Prometheus + Grafana**: Deployed in `monitoring` namespace for comprehensive metrics collection
+  - **Infrastructure Metrics**: Node CPU, memory, disk, network I/O
+  - **Application Metrics**: Pod resource usage, restart counts, availability
+  - **Dashboards**: Pre-configured Grafana dashboards for infrastructure and application monitoring
+- **CloudWatch Logs**: Centralized logging for application and control plane logs
+- **EBS CSI Driver**: Installed as EKS addon to enable persistent storage for Prometheus/Grafana
+
+### 11. Cluster Scaling
+- **Node Group Scaling**: Configured with min=3, max=10, desired=5 nodes
+- **Instance Type**: t3.medium (2 vCPU, 4GB RAM) for balanced performance
+- **Auto-Scaling**: Cluster Autoscaler enabled for dynamic scaling based on workload
+
+### 12. Application Exposure
+- **Production URL**: [evoqu.in](http://evoqu.in)
+- **Exposure Method**: Kubernetes LoadBalancer service + DNS (Hostinger)
+- **ALB Limitation**: AWS account restrictions prevent ALB creation, requiring direct LoadBalancer service exposure
+- **DNS Configuration**: Domain `evoqu.in` points to LoadBalancer external IP

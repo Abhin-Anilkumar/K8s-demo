@@ -23,7 +23,10 @@ This document outlines the implemented monitoring and logging stack for the Craf
 ### Grafana Dashboards
 - **Access**: `kubectl port-forward -n monitoring svc/grafana 3000:80`
 - **Data Source**: Prometheus at `http://prometheus-server.monitoring.svc.cluster.local`
-- **Pre-configured Dashboards**: Cluster overview, node metrics, pod performance
+- **Pre-configured Dashboards**: 
+  - **Infrastructure Overview** (`grafana-dashboards/infrastructure-overview.json`): Node CPU/Memory/Disk, Network I/O
+  - **Application Performance** (`grafana-dashboards/application-performance.json`): Pod metrics, restarts, availability
+- **Import Instructions**: Dashboards → Import → Upload JSON file → Select Prometheus data source
 
 ## 2. Database Monitoring (CloudWatch)
 
@@ -51,3 +54,16 @@ This document outlines the implemented monitoring and logging stack for the Craf
 - **IAM Role**: IRSA-enabled for `ebs-csi-controller-sa`
 - **StorageClass**: `gp2` (default, WaitForFirstConsumer binding mode)
 - **Persistent Volumes**: Auto-provisioned for Prometheus and Alertmanager data retention
+
+## 5. Application Access
+
+### Production URL
+- **Domain**: [evoqu.in](http://evoqu.in)
+- **Exposure**: Kubernetes LoadBalancer service (frontend)
+- **DNS Provider**: Hostinger
+- **Note**: ALB with Ingress not used due to AWS account restrictions on load balancer creation
+
+### Cluster Scaling
+- **Current Nodes**: 5x t3.medium instances
+- **Scaling Config**: Min 3, Max 10, Desired 5
+- **Auto-Scaling**: Enabled via Cluster Autoscaler
