@@ -9,6 +9,11 @@ During the deployment and refinement of the Craftista application, several techn
 ## 2. Internal Service Discovery (ENOTFOUND)
 **Challenge**: Short-name DNS resolution was inconsistent between microservices.
 **Resolution**: Updated all service configurations to use Fully Qualified Domain Names (FQDNs).
+- **Feedback Loop**: Leveraged native GitHub Action notifications for streamlined build and deployment status.
+
+## 6. Staging Deployment Failures
+**Challenge**: The `voting` service failed to start in the `stage-app` namespace due to missing credentials.
+**Resolution**: Identified that `voting-db-credentials` existed only in `app`. Replicated the secret to `stage-app` to resolve the `CreateContainerConfigError`.
 
 ## 3. Network Isolation
 **Challenge**: Split node groups caused connectivity hangs due to isolated Security Groups.

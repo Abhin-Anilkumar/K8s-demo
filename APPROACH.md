@@ -35,6 +35,18 @@ The goal was to deploy a highly available, scalable, and secure microservices ap
 - **IRSA (IAM Roles for Service Accounts)**: Implemented for the AWS Load Balancer Controller to follow the principle of least privilege.
 - **Secret Management**: Database credentials and other sensitive info are managed via Kubernetes Secrets.
 
-### 7. Monitoring & Logging
-- **AWS CloudWatch**: Used for infrastructure metrics and centralized log streaming.
-- **Metrics Server**: Enabled for real-time cluster resource monitoring.
+### 7. Security Best Practices
+- **Network Isolation**: Worker nodes and databases reside in private subnets; only the ALB is public.
+- **Least Privilege**: IAM Roles for Service Accounts (IRSA) restrict pod permissions.
+- **Secret Management**: Sensitive data (DB credentials) is managed via Kubernetes Secrets, not hardcoded.
+- **Container Security**: Images are built distroless/minimal where possible to reduce attack surface.
+
+### 8. Cost Optimization
+- **Right-Sizing**: Selected `t3.medium` instances to balance performance and cost for this workload.
+- **Auto-Scaling**: Configured Horizontal Pod Autoscalers (HPA) to scale down during low traffic.
+- **Spot Instances**: (Optional) Ready to leverage Spot instances for stateless frontend/catalogue services.
+
+### 9. Reliability & Backups
+- **Database Backups**: RDS is configured with automated daily snapshots (7-day retention).
+- **State Management**: Terraform state is locked via DynamoDB to prevent corruption.
+- **High Availability**: Multi-AZ deployment ensures resilience against zone failures.
