@@ -26,7 +26,7 @@ The goal was to deploy a highly available, scalable, and secure microservices ap
 - **Streamlined CI/CD**: Simplified the GitHub Actions pipeline to focus on high-speed delivery:
   - **Build**: Rapid Docker builds with Amazon ECR integration.
   - **Deploy**: Seamless Helm-based deployments to EKS.
-  - **Notify**: Automated email alerts for build status.
+  - **Notify**: Reliable feedback via native GitHub status checks.
 
 ### 6. Security & IAM
 - **IRSA (IAM Roles for Service Accounts)**: Implemented for the AWS Load Balancer Controller to follow the principle of least privilege.

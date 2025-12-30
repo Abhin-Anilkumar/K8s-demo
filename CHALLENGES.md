@@ -23,4 +23,4 @@ During the deployment and refinement of the Craftista application, several techn
 **Resolution**:
 - **Consolidation**: Moved all Helm charts to a centralized `charts/` directory for better maintainability.
 - **Simplification**: Refactored the CI/CD pipeline to remove unit tests, focusing on immediate build, push, and deployment to the production cluster.
-- **Feedback Loop**: Integrated automated email notifications to alert the team of build and deployment status.
+- **Feedback Loop**: Leveraged native GitHub Action notifications for streamlined build and deployment status.

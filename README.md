@@ -93,7 +93,7 @@ The project implements a streamlined CI/CD pipeline using **GitHub Actions**:
 
 ### 2. Automated Deployment
 - Automated deployment to the **Amazon EKS** production cluster using Helm.
-- Success/Failure email notifications for build and deployment status.
+- Native GitHub Action notifications for build and deployment status.
 
 ---
 

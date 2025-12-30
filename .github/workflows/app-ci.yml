@@ -70,6 +70,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+
       - name: Deploy to EKS
         run: |
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name prod-eks
@@ -78,34 +79,3 @@ jobs:
           helm upgrade --install catalogue ./charts/catalogue -n app
           helm upgrade --install voting ./charts/voting -n app
           helm upgrade --install recommendation ./charts/recommendation -n app
-
-      - name: Send Email Notification (Success)
-        if: success()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: Github Action Build Success - ${{ github.repository }}
-          to: ${{ secrets.MAIL_TO }}
-          from: GitHub Actions
-          body: |
-            Build and Deployment for ${{ github.repository }} was successful.
-            Commit: ${{ github.sha }}
-            Branch: ${{ github.ref }}
-
-      - name: Send Email Notification (Failure)
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: Github Action Build Failed - ${{ github.repository }}
-          to: ${{ secrets.MAIL_TO }}
-          from: GitHub Actions
-          body: |
-            Build and Deployment for ${{ github.repository }} failed.
-            Please check the logs at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
