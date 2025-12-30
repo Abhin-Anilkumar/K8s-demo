@@ -201,6 +201,24 @@ Security is built-in at every layer of the infrastructure:
 - **IAM (IRSA)**: Using IAM Roles for Service Accounts to provide the AWS Load Balancer Controller with the minimum required permissions.
 - **Node Security**: A unified node group ensures consistent security group application and minimal attack surface.
 
+## CI/CD Pipeline
+
+The project implements a robust automated CI/CD pipeline using **GitHub Actions**, following DevSecOps best practices:
+
+### 1. Continuous Integration (CI)
+- **Multi-Language Unit Testing**: Automated tests for Java (Spring Boot), Go, Python (Flask), and Node.js.
+- **Infrastructure Validation**: Terraform code is automatically validated and formatted.
+- **Security Scanning**:
+  - **Trivy**: Scans container images for vulnerabilities (Critical/High).
+  - **Checkov**: Validates Terraform IaC against security best practices.
+
+### 2. Continuous Deployment (CD)
+- **Multi-Stage Deployment**:
+  - **Staging**: Automated deployment to the staging environment after successful tests and builds.
+  - **Manual Approval**: A required manual gate before any production deployment.
+  - **Production**: Final rollout to the production EKS cluster.
+- **Persistence Layer**: Automated integration with RDS PostgreSQL for stateful services.
+
 ## Cost Optimization
 
 - **Right-Sizing**: Using `t3.medium` instances for a balance of performance and cost.

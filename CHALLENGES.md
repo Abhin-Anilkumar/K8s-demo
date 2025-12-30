@@ -25,3 +25,12 @@ During the deployment of the Craftista application on EKS, several critical chal
 - Standardizing the application to take database configuration via environment variables.
 - Securing credentials using Kubernetes Secrets.
 - Updating the Security Group to allow ingress on 5432 from the node group.
+
+## 6. CI/CD Pipeline & Unit Test Failures
+**Challenge**: The initial CI/CD pipeline failed during the `test` stage. Specifically:
+- The Go `recommendation` service had no unit tests.
+- The Java `voting` service failed context loading because its `@Scheduled` synchronization task attempted to call an external service and connect to a database before the mocks were in place.
+**Resolution**: 
+- Created a comprehensive `api_test.go` for the `recommendation` service using `testify/assert`.
+- Refactored `VotingApplicationTests.java` to use `@MockBean` for `RestTemplate`, successfully isolating the application context for unit testing.
+- Restored and configured **Trivy** and **Checkov** scans in the pipeline to ensure automated security compliance.
