@@ -1,123 +1,143 @@
-# Craftista Application (Microservices)
+# Craftista Application - Deployment Guide
 
-This repository contains the **Application Source Code** and **Helm Charts** for the Craftista microservices platform.
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue)](https://github.com/Abhin-Anilkumar/K8s-demo/actions)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.28+-326CE5)](https://kubernetes.io/)
+[![Helm](https://img.shields.io/badge/Helm-3.0+-0F1689)](https://helm.sh/)
 
-> [!NOTE]
-> **Infrastructure Repository**: The Terraform code to provision the EKS cluster for this application is available at [AWS-EKS-Infrastructure](https://github.com/Abhin-Anilkumar/EKS-project-for-8byte).
-
-## Documentation
-
-For detailed technical insights, please refer to:
-- **[APPROACH.md](APPROACH.md)**: Design rationale, networking strategy, and architectural decisions.
-- **[CHALLENGES.md](CHALLENGES.md)**: A log of hurdles encountered (Architecture mismatches, connectivity hangs) and their resolutions.
-- **[DASHBOARD.md](DASHBOARD.md)**: Monitoring and observability strategy.
-
-
-## What is Craftista: Celebrating the Art of Origami 
-
-Welcome to Craftista, a unique web platform dedicated to the beautiful and intricate world of origami. Craftista is a place where origami enthusiasts and artists come together to showcase their creations, share their passion, and engage with a like-minded community. Our platform allows users to explore a diverse range of origami art, vote for their favorites, and get inspired by the daily featured origami.
-
-![Simple Design](docs/stage4-02.png)
-
-### Features
-
-**Origami Showcase**: 
-
-Discover a wide array of origami creations, ranging from traditional designs to contemporary art pieces. Each origami has its own story and charm, waiting to be unfolded.
-
-**User Voting System**: 
-
-Participate in the community by voting for your favorite origami pieces. See what creations are trending and show your support for the artists.
-Daily Origami Recommendation: Be greeted daily with a new origami masterpiece, handpicked to inspire and ignite your passion for paper folding.
-
-**Origami of the Day**: 
-
-Learn more about origami artists, their work, and their journey into the world of paper art.
+> **For application details and features**, see [README-original.md](README-original.md)
+> 
+> **Infrastructure Repository**: [EKS-project-for-8byte](https://github.com/Abhin-Anilkumar/EKS-project-for-8byte) - Terraform IaC for AWS EKS cluster
 
 ---
 
+## 📋 Quick Links
 
-## The Architecture 
-
-Craftista is not just an origami platform; it's a demonstration of modern web application development and microservices architecture. It leverages multiple backend services, including:
-
-![Craftista Architevture](docs/Craftista-Architecture-SchoolofDevops-CC-BY-NC-SA4.0.jpg "Craftista Architecture")
-
-### Micro Service 01 - Frontend
-- **Language**: Node.js  
-- **Framework**: Express.js  
-
-### Micro Service 02 - Catalogue
-- **Language**: Python  
-- **Framework**: Flask  
-
-###  Micro Service 03 - Voting
-- **Language**: Java
-- **Framework**: Spring Boot   
-
-###  Micro Service 04 - Recommendation 
-- **Language**: Golang  
+- **[Application Details](README-original.md)** - About Craftista, features, and microservices
+- **[APPROACH.md](APPROACH.md)** - Design rationale and architectural decisions
+- **[CHALLENGES.md](CHALLENGES.md)** - Issues encountered and resolutions
+- **[DASHBOARD.md](DASHBOARD.md)** - Monitoring and observability strategy
 
 ---
 
-## Repository Structure (Best Practices)
+## 🚀 Quick Start
 
-The repository follows a clean monorepo structure with centralized Helm charts:
+### Prerequisites
 
-```text
-.
-├── charts/                 # Centralized Helm Charts
-│   ├── catalogue/          # Catalogue service chart
-│   ├── frontend/           # Frontend service chart
-│   ├── recommendation/     # Recommendation service chart
-│   └── voting/             # Voting service chart
-├── catalogue/              # Python Catalogue service source
-├── frontend/               # Node.js Frontend service source
-├── recommendation/         # Go Recommendation service source
-├── voting/                 # Java Voting service source
-├── docs/                   # Architecture diagrams and assets
-├── .github/workflows/      # GitHub Actions CI/CD pipelines
-└── README.md               # Main project documentation
+- **kubectl** configured for EKS cluster
+- **Helm** >= 3.0
+- **AWS CLI** with ECR access
+
+### 1. Create Database Secret
+
+```bash
+# Production namespace
+kubectl create secret generic voting-db-credentials \
+  --from-literal=username=postgres \
+  --from-literal=password=<RDS_PASSWORD> \
+  -n app
+
+# Staging namespace
+kubectl create secret generic voting-db-credentials \
+  --from-literal=username=postgres \
+  --from-literal=password=<RDS_PASSWORD> \
+  -n stage-app
+```
+
+### 2. Deploy Services (Production)
+
+```bash
+# Deploy all microservices
+helm upgrade --install frontend ./charts/frontend -n app
+helm upgrade --install catalogue ./charts/catalogue -n app
+helm upgrade --install voting ./charts/voting -n app
+helm upgrade --install recommendation ./charts/recommendation -n app
+```
+
+### 3. Verify Deployment
+
+```bash
+kubectl get pods -n app
+kubectl get svc -n app
 ```
 
 ---
 
-## CI/CD Pipeline
+## 🔄 CI/CD Pipeline
 
-The project implements a professional **Main/Develop** branching strategy with a streamlined GitHub Actions pipeline:
+### Branching Strategy
 
-### 1. Branching Strategy
-- **`develop`**: The integration branch. Merges here trigger deployment to **Staging**.
-- **`main`**: The production branch. Merges here trigger a gated deployment to **Production**.
+- **`main`**: Production deployments (manual approval required)
+- **`develop`**: Staging deployments (automatic)
+- **PRs to `develop`**: Build validation (Docker build only, no unit tests)
 
-### 2. Pipeline Stages
-- **Build Validation (PR)**:
-  - Trigger: Pull Request to `develop`.
-  - Action: Runs `docker build` to verify code integrity without unit tests.
-- **Staging Deployment**:
-  - Trigger: Push/Merge to `develop`.
-  - Action: Builds images, pushes to ECR, and deploys to the `stage-app` namespace.
-- **Production Deployment**:
-  - Trigger: Push/Merge to `main`.
-  - Action: Deploys images to the `app` namespace.
-  - **Gate**: Requires Manual Approval via GitHub Environments.
+### Pipeline Stages
 
-### 3. Namespace Isolation
-- **`stage-app`**: Staging environment for testing integrations.
-- **`app`**: Production environment for live traffic.
+| Stage | Trigger | Actions | Target |
+|-------|---------|---------|--------|
+| **Build Validation** | PR to `develop` | Docker build all services | - |
+| **Build & Push** | Push to `develop`/`main` | Build + Push to ECR | ECR |
+| **Deploy Staging** | Push to `develop` | Helm upgrade | `stage-app` namespace |
+| **Deploy Production** | Push to `main` | Manual approval + Helm upgrade | `app` namespace |
 
 ---
 
-## Security Considerations
+## 📊 Monitoring
 
-- **Network Isolation**: EKS worker nodes and RDS instances are hosted in **private subnets**.
-- **IAM (IRSA)**: Least-privilege access for the AWS Load Balancer Controller.
-- **Node Security**: Unified node group ensures a consistent security posture.
+### Grafana Dashboards
 
-## Cost Optimization
+**Access Grafana**:
+```bash
+kubectl port-forward -n monitoring svc/grafana 3000:80
+```
 
-- **Right-Sizing**: Using `t3.medium` instances for optimal resource usage.
-- **Storage Management**: RDS auto-scaling is managed via `max_allocated_storage`.
+**Import Dashboards**:
+1. Navigate to **Dashboards → Import**
+2. Upload JSON files from `grafana-dashboards/`:
+   - `infrastructure-overview.json` - Node metrics, disk, network
+   - `application-performance.json` - Pod CPU/memory, restarts, availability
+
+**Configure Data Source**:
+- URL: `http://prometheus-server.monitoring.svc.cluster.local`
+- Access: Server (default)
+
+### CloudWatch Logs
+
+```bash
+# View control plane logs
+aws logs tail /aws/eks/prod-eks/cluster --follow
+```
 
 ---
-*Note: The Application Load Balancer is configured and ready to provision once account-level ELB creation restrictions are lifted.*
+
+## 🔒 Security & Secrets
+
+### Secret Management
+
+**Database Credentials**: Stored as Kubernetes Secrets
+- Namespace-scoped (`app`, `stage-app`)
+- RBAC: Only voting pods can access
+- Encrypted at rest via EKS encryption config
+
+**Best Practices**:
+- Never commit secrets to Git
+- Use AWS Secrets Manager for production (recommended)
+- Rotate credentials regularly
+
+---
+
+## 📚 Documentation
+
+- **[README-original.md](README-original.md)** - Application details and features
+- **[APPROACH.md](APPROACH.md)** - Design rationale
+- **[CHALLENGES.md](CHALLENGES.md)** - Issues and resolutions
+- **[DASHBOARD.md](DASHBOARD.md)** - Monitoring strategy
+- **[Infrastructure README](https://github.com/Abhin-Anilkumar/EKS-project-for-8byte/blob/main/README.md)** - EKS setup guide
+
+---
+
+## 👤 Author
+
+**Abhin Anilkumar**
+- GitHub: [@Abhin-Anilkumar](https://github.com/Abhin-Anilkumar)
+- Application: [K8s-demo](https://github.com/Abhin-Anilkumar/K8s-demo)
+- Infrastructure: [EKS-project-for-8byte](https://github.com/Abhin-Anilkumar/EKS-project-for-8byte)

@@ -31,3 +31,25 @@ During the deployment and refinement of the Craftista application, several techn
   - `pr` -> `develop`: Build Validation (No unit tests).
   - `push` -> `develop`: Automatic deployment to Staging (`stage-app`).
   - `push` -> `main`: Manual deployment to Production (`app`).
+
+## 7. Monitoring Stack Persistent Storage
+**Challenge**: Prometheus and Grafana pods stuck in Pending state due to unbound PersistentVolumeClaims.
+**Resolution**: 
+- Installed AWS EBS CSI Driver as an EKS addon with IRSA-enabled IAM role
+- Set `gp2` StorageClass as default for automatic volume provisioning
+- PVCs successfully bound and monitoring stack became operational
+
+## 8. EKS Cluster Scaling
+**Challenge**: Initial cluster had only 2 nodes, insufficient for monitoring stack and application workloads.
+**Resolution**: 
+- Scaled node group from 2 to 5 nodes (min=3, max=10, desired=5)
+- Used AWS CLI to bypass Terraform validation error when min_size > current desired_size
+- All monitoring and application pods successfully scheduled across 5 nodes
+
+## 9. Application Exposure & ALB Restrictions
+**Challenge**: AWS account has restrictions preventing Application Load Balancer creation.
+**Resolution**: 
+- Used Kubernetes LoadBalancer service type for frontend exposure
+- Configured DNS record in Hostinger pointing `evoqu.in` to LoadBalancer external IP
+- Application successfully accessible at [evoqu.in](http://evoqu.in)
+- **Trade-off**: Direct LoadBalancer exposure instead of ALB with Ingress (less cost-effective but functional)
